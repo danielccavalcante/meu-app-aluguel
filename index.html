@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Aluguéis de Carros</title>
+    <style>
+        :root {
+            --color-primary: #2a8c9e;
+            --color-primary-hover: #1d6b7b;
+            --color-secondary: #f0f4f8;
+            --color-text: #1a1a1a;
+            --color-text-light: #666;
+            --color-border: #ddd;
+            --color-success: #27ae60;
+            --color-warning: #f39c12;
+            --color-error: #e74c3c;
+            --color-bg: #fafafa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--color-primary);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        nav button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        nav button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        nav button.active {
+            background: rgba(255,255,255,0.4);
+            border-bottom: 3px solid white;
+        }
+
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--color-primary);
+            border-bottom: 2px solid var(--color-primary);
+            padding-bottom: 10px;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--color-border);
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 5px rgba(42, 140, 158, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        button {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: var(--color-primary-hover);
+        }
+
+        button.secondary {
+            background: var(--color-secondary);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        button.secondary:hover {
+            background: #e8eef5;
+        }
+
+        button.danger {
+            background: var(--color-error);
+        }
+
+        button.danger:hover {
+            background: #c0392b;
+        }
+
+        button.success {
+            background: var(--color-success);
+        }
+
+        button.success:hover {
+            background: #229954;
+        }
+
+        /* Cards and Lists */
+        .card {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .card-actions button {
+            padding: 8px 15px;
+            font-size: 12px;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: var(--color-secondary);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        /* Calendar */
+        .calendar-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .calendar {
+            border: 1px solid var(--color-border);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .calendar-header {
+            background: var(--color-primary);
+            color: white;
+            padding: 15px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .calendar-header button {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: var(--color-secondary);
+            gap: 0;
+        }
+
+        .weekday {
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--color-text-light);
+        }
+
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0;
+            min-height: 300px;
+        }
+
+        .day {
+            padding: 10px;
+            border: 1px solid var(--color-border);
+            min-height: 60px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 12px;
+        }
+
+        .day:hover {
+            background: #f0f0f0;
+        }
+
+        .day.other-month {
+            background: var(--color-secondary);
+            color: var(--color-text-light);
+        }
+
+        .day.today {
+            background: #fff3cd;
+            font-weight: bold;
+        }
+
+        .day.reserved {
+            background: #d4edda;
+            color: var(--color-success);
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .day-rental {
+            font-size: 10px;
+            background: var(--color-primary);
+            color: white;
+            padding: 2px 4px;
+            border-radius: 3px;
+            margin-top: 3px;
+            word-break: break-word;
+        }
+
+        /* Image Gallery */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .image-item {
+            position: relative;
+            border-radius: 5px;
+            overflow: hidden;
+            background: var(--color-secondary);
+            aspect-ratio: 1;
+            cursor: pointer;
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-item button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(231, 76, 60, 0.8);
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .image-item:hover button {
+            opacity: 1;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            display: none;
+        }
+
+        .file-input-label {
+            background: var(--color-secondary);
+            border: 2px dashed var(--color-primary);
+            padding: 30px;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .file-input-label:hover {
+            background: #e8eef5;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background: #d4edda;
+            color: var(--color-success);
+        }
+
+        .status-badge.rented {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.completed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--color-text-light);
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.active {
+            display: block;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            nav button {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+
+            .image-gallery {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+
+            .card-actions {
+                flex-direction: column;
+            }
+
+            .card-actions button {
+                width: 100%;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🚗 Gerenciador de Aluguéis de Carros</h1>
+            <p style="font-size: 14px; opacity: 0.9;">Controle completo de aluguéis, clientes e disponibilidade</p>
+            <nav>
+                <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
+                <button class="nav-btn" data-tab="rentals">Aluguéis</button>
+                <button class="nav-btn" data-tab="clients">Clientes</button>
+                <button class="nav-btn" data-tab="cars">Carros</button>
+                <button class="nav-btn" data-tab="calendar">Calendário</button>
+                <button class="nav-btn" data-tab="settings">Configurações</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="alert" class="alert"></div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="content active">
+            <h2 class="section-title">📊 Dashboard</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <div class="card">
+                    <div style="color: var(--color-primary); font-size: 32px; margin-bottom: 10px;">🚗</div>
+                    <h3 style="margin-bottom: 5px;">Total de Carros</h3>
+                    <p style="font-size: 24px; font-weight: bold; color: var(--color-primary);" id="totalCars">0</p>
+                </div>
+                <div class="card">
+                    <div style="color: var(--color-success); font-size: 32px; margin-bottom: 10px;">✅</div>
+                    <h3 style="margin-bottom: 5px;">Aluguéis Ativos</h3>
+                    <p style="font-size: 24px; font-weight: bold; color: var(--color-success);" id="activeRentals">0</p>
+                </div>
+                <div class="card">
+                    <div style="color: var(--color-warning); font-size: 32px; margin-bottom: 10px;">👥</div>
+                    <h3 style="margin-bottom: 5px;">Total de Clientes</h3>
+                    <p style="font-size: 24px; font-weight: bold; color: var(--color-warning);" id="totalClients">0</p>
+                </div>
+                <div class="card">
+                    <div style="color: var(--color-primary); font-size: 32px; margin-bottom: 10px;">💰</div>
+                    <h3 style="margin-bottom: 5px;">Receita Total</h3>
+                    <p style="font-size: 24px; font-weight: bold; color: var(--color-primary);" id="totalRevenue">R$ 0,00</p>
+                </div>
+            </div>
+
+            <h3 class="section-title">📅 Próximos Aluguéis</h3>
+            <table id="upcomingRentalsTable">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Carro</th>
+                        <th>Início</th>
+                        <th>Fim</th>
+                        <th>Valor</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="upcomingRentalsBody">
+                    <tr><td colspan="6" style="text-align: center; color: var(--color-text-light);">Nenhum aluguel próximo</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Aluguéis -->
+        <div id="rentals" class="content">
+            <h2 class="section-title">📋 Gerenciar Aluguéis</h2>
+            
+            <div class="card">
+                <h3 class="card-title">Novo Aluguel</h3>
+                <form id="rentalForm" style="margin-top: 20px;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rentalClient">Cliente *</label>
+                            <select id="rentalClient" required>
+                                <option value="">Selecione um cliente</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="rentalCar">Carro *</label>
+                            <select id="rentalCar" required>
+                                <option value="">Selecione um carro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rentalStart">Data de Início *</label>
+                            <input type="date" id="rentalStart" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rentalEnd">Data de Término *</label>
+                            <input type="date" id="rentalEnd" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rentalType">Tipo de Cobrança *</label>
+                            <select id="rentalType" required onchange="toggleRentalType()">
+                                <option value="">Selecione</option>
+                                <option value="daily">Diária</option>
+                                <option value="total">Valor Total</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="rentalValue">Valor (R$) *</label>
+                            <input type="number" id="rentalValue" min="0" step="0.01" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group form-row full">
+                        <label>Fotos do Início do Aluguel</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="rentalStartPhotos" multiple accept="image/*" onchange="handleStartPhotos(event)">
+                            <label for="rentalStartPhotos" class="file-input-label">
+                                📸 Clique ou arraste as fotos aqui (Início)
+                            </label>
+                        </div>
+                        <div class="image-gallery" id="startPhotosGallery"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rentalNotes">Observações</label>
+                        <textarea id="rentalNotes" placeholder="Detalhes do aluguel, condições do carro, etc."></textarea>
+                    </div>
+
+                    <button type="submit">✅ Criar Aluguel</button>
+                </form>
+            </div>
+
+            <h3 class="section-title">Aluguéis Ativos</h3>
+            <div id="activeRentalsList"></div>
+        </div>
+
+        <!-- Clientes -->
+        <div id="clients" class="content">
+            <h2 class="section-title">👥 Gerenciar Clientes</h2>
+            
+            <div class="card">
+                <h3 class="card-title">Novo Cliente</h3>
+                <form id="clientForm" style="margin-top: 20px;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="clientName">Nome Completo *</label>
+                            <input type="text" id="clientName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientPhone">Telefone *</label>
+                            <input type="tel" id="clientPhone" placeholder="(00) 9 0000-0000" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="clientEmail">Email</label>
+                            <input type="email" id="clientEmail">
+                        </div>
+                        <div class="form-group">
+                            <label for="clientCPF">CPF/CNPJ</label>
+                            <input type="text" id="clientCPF">
+                        </div>
+                    </div>
+
+                    <div class="form-group form-row full">
+                        <label for="clientAddress">Endereço</label>
+                        <input type="text" id="clientAddress">
+                    </div>
+
+                    <button type="submit">➕ Adicionar Cliente</button>
+                </form>
+            </div>
+
+            <h3 class="section-title">Clientes Cadastrados</h3>
+            <table id="clientsTable">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Telefone</th>
+                        <th>Email</th>
+                        <th>Aluguéis</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="clientsTableBody">
+                    <tr><td colspan="5" style="text-align: center; color: var(--color-text-light);">Nenhum cliente cadastrado</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Carros -->
+        <div id="cars" class="content">
+            <h2 class="section-title">🚗 Gerenciar Carros</h2>
+            
+            <div class="card">
+                <h3 class="card-title">Novo Carro</h3>
+                <form id="carForm" style="margin-top: 20px;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="carModel">Modelo *</label>
+                            <input type="text" id="carModel" placeholder="Ex: Honda Civic 2023" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="carPlate">Placa *</label>
+                            <input type="text" id="carPlate" placeholder="ABC-1234" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="carColor">Cor</label>
+                            <input type="text" id="carColor" placeholder="Branco">
+                        </div>
+                        <div class="form-group">
+                            <label for="carYear">Ano</label>
+                            <input type="number" id="carYear" min="1990" max="2099">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="carMileage">Km Atual</label>
+                            <input type="number" id="carMileage" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="carStatus">Status</label>
+                            <select id="carStatus">
+                                <option value="available">Disponível</option>
+                                <option value="maintenance">Em Manutenção</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="carDocuments">Documento RenavaM/Registro</label>
+                        <input type="text" id="carDocuments">
+                    </div>
+
+                    <button type="submit">➕ Adicionar Carro</button>
+                </form>
+            </div>
+
+            <h3 class="section-title">Carros Cadastrados</h3>
+            <div id="carsList"></div>
+        </div>
+
+        <!-- Calendário -->
+        <div id="calendar" class="content">
+            <h2 class="section-title">📅 Calendário de Disponibilidade</h2>
+            
+            <div class="form-group" style="margin-bottom: 20px; max-width: 300px;">
+                <label for="calendarCar">Selecione um Carro</label>
+                <select id="calendarCar" onchange="renderCalendar()">
+                    <option value="">Todos os carros</option>
+                </select>
+            </div>
+
+            <div class="calendar-container">
+                <div class="calendar">
+                    <div class="calendar-header">
+                        <button onclick="previousMonth()">&lt;</button>
+                        <span id="currentMonth"></span>
+                        <button onclick="nextMonth()">&gt;</button>
+                    </div>
+                    <div class="weekdays">
+                        <div class="weekday">Dom</div>
+                        <div class="weekday">Seg</div>
+                        <div class="weekday">Ter</div>
+                        <div class="weekday">Qua</div>
+                        <div class="weekday">Qui</div>
+                        <div class="weekday">Sex</div>
+                        <div class="weekday">Sab</div>
+                    </div>
+                    <div class="days" id="calendarDays"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <h3 class="section-title">Legenda</h3>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 30px; height: 30px; background: #d4edda; border: 1px solid var(--color-border); border-radius: 5px;"></div>
+                        <span>Aluguel Ativo</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 30px; height: 30px; background: #fff3cd; border: 1px solid var(--color-border); border-radius: 5px;"></div>
+                        <span>Hoje</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configurações -->
+        <div id="settings" class="content">
+            <h2 class="section-title">⚙️ Configurações</h2>
+            
+            <div class="card">
+                <h3 class="card-title">📱 Sincronização em Nuvem (Firebase)</h3>
+                <p style="color: var(--color-text-light); margin-bottom: 15px;"><strong>✨ RECOMENDADO:</strong> Para compartilhar dados entre Android do seu pai e seu aparelho em tempo real.</p>
+                
+                <div style="background: #d4edda; padding: 15px; border-radius: 5px; margin-bottom: 15px; border-left: 4px solid var(--color-success);">
+                    <p style="margin: 0; color: #155724;"><strong>✅ Melhor Solução:</strong> Firebase Realtime Database ou Firestore</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: #155724;">• Gratuito até 100 MB de dados</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: #155724;">• Sincronização automática em tempo real</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: #155724;">• Funciona offline e sincroniza quando conectar</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: #155724;">• Você e seu pai acessam os mesmos dados</p>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <button class="secondary" onclick="showInstructions('firebase')" style="width: 100%; text-align: left; padding: 12px 20px; text-align: center;">📖 Ver Instruções Firebase (10 min)</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">📤 Backup & Sincronização Manual</h3>
+                <p style="color: var(--color-text-light); margin-bottom: 20px;">Use os botões abaixo para fazer backup ou limpar todos os dados da aplicação.</p>
+                
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="success" onclick="exportData()">💾 Fazer Backup (JSON)</button>
+                    <button class="secondary" onclick="importData()">📂 Restaurar Backup</button>
+                    <button class="danger" onclick="clearAllData()">🗑️ Limpar Tudo</button>
+                </div>
+
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(event)">
+
+                <p style="color: var(--color-text-light); font-size: 12px; margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px;">
+                    💡 <strong>Alternativa:</strong> Você pode enviar o arquivo JSON via WhatsApp/Email para seu pai restaurar no aparelho dele.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">📲 Alternativas de Compartilhamento</h3>
+                
+                <div style="margin-bottom: 15px; padding: 12px; background: var(--color-secondary); border-radius: 5px; border-left: 4px solid #f39c12;">
+                    <p style="margin: 0; font-weight: 600; color: var(--color-text);">1️⃣ Google Drive (Manual)</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--color-text-light);">• Salve o backup JSON no Google Drive</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--color-text-light);">• Compartilhe com o email do seu pai</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--color-text-light);">• Ele baixa e importa no aparelho dele</p>
+                </div>
+
+                <div style="margin-bottom: 15px; padding: 12px; background: var(--color-secondary); border-radius: 5px; border-left: 4px solid #2a8c9e;">
+                    <p style="margin: 0; font-weight: 600; color: var(--color-text);">2️⃣ WhatsApp Web/Gmail (Manual)</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--color-text-light);">• Exporte o backup clicando em "Fazer Backup"</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--color-text-light);">• Envie o arquivo JSON pelo WhatsApp Web</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--color-text-light);">• Seu pai abre no navegador e importa</p>
+                </div>
+
+                <div style="padding: 12px; background: var(--color-secondary); border-radius: 5px; border-left: 4px solid var(--color-success);">
+                    <p style="margin: 0; font-weight: 600; color: var(--color-text);">3️⃣ Firebase (Recomendado - Automático ⭐)</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--color-text-light);">• Sincronização automática em tempo real</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--color-text-light);">• Ambos acessam os mesmos dados</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--color-text-light);">• Funciona offline e sincroniza depois</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Sobre</h3>
+                <p><strong>Gerenciador de Aluguéis de Carros v1.0</strong></p>
+                <p style="color: var(--color-text-light);">Um aplicativo completo para gerenciar aluguéis de carros, clientes, disponibilidade e documentação fotográfica.</p>
+            </div>
+        </div>
+
+        <!-- Modal de Instruções Firebase -->
+        <div id="instructionsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Como Configurar Firebase</h2>
+                    <button class="close-btn" onclick="closeInstructions()">&times;</button>
+                </div>
+                <div id="instructionsContent" style="font-size: 14px; line-height: 1.8;"></div>
+            </div>
+        </div>
+
+        <!-- Modal para Fotos de Devolução -->
+        <div id="returnModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Registrar Devolução</h2>
+                    <button class="close-btn" onclick="closeReturnModal()">&times;</button>
+                </div>
+                <form id="returnForm">
+                    <div class="form-group">
+                        <label>Fotos da Devolução</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="returnPhotos" multiple accept="image/*" onchange="handleReturnPhotos(event)">
+                            <label for="returnPhotos" class="file-input-label">
+                                📸 Clique ou arraste as fotos de devolução
+                            </label>
+                        </div>
+                        <div class="image-gallery" id="returnPhotosGallery"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="returnNotes">Observações da Devolução</label>
+                        <textarea id="returnNotes" placeholder="Danos, km final, observações..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="finalMileage">KM Final do Carro</label>
+                        <input type="number" id="finalMileage" min="0">
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="success">✅ Confirmar Devolução</button>
+                        <button type="button" class="secondary" onclick="closeReturnModal()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Data Storage
+        let data = {
+            cars: [],
+            clients: [],
+            rentals: [],
+            completedRentals: []
+        };
+
+        let currentRentalId = null;
+        let currentMonth = new Date();
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            setupEventListeners();
+            renderCalendar();
+            updateDashboard();
+        });
+
+        function setupEventListeners() {
+            // Navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    switchTab(this.dataset.tab);
+                });
+            });
+
+            // Forms
+            document.getElementById('rentalForm').addEventListener('submit', createRental);
+            document.getElementById('clientForm').addEventListener('submit', createClient);
+            document.getElementById('carForm').addEventListener('submit', createCar);
+            document.getElementById('returnForm').addEventListener('submit', completeRental);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if(tabName === 'calendar') renderCalendar();
+            if(tabName === 'rentals') renderRentals();
+            if(tabName === 'cars') renderCars();
+            if(tabName === 'clients') renderClients();
+        }
+
+        // CLIENT MANAGEMENT
+        function createClient(e) {
+            e.preventDefault();
+            const client = {
+                id: Date.now(),
+                name: document.getElementById('clientName').value,
+                phone: document.getElementById('clientPhone').value,
+                email: document.getElementById('clientEmail').value,
+                cpf: document.getElementById('clientCPF').value,
+                address: document.getElementById('clientAddress').value,
+                createdAt: new Date().toISOString()
+            };
+
+            data.clients.push(client);
+            saveData();
+            showAlert('Cliente adicionado com sucesso!', 'success');
+            document.getElementById('clientForm').reset();
+            updateClientSelects();
+            renderClients();
+        }
+
+        function renderClients() {
+            const tbody = document.getElementById('clientsTableBody');
+            if(data.clients.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--color-text-light);">Nenhum cliente cadastrado</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.clients.map(client => `
+                <tr>
+                    <td><strong>${client.name}</strong></td>
+                    <td>${client.phone}</td>
+                    <td>${client.email || '-'}</td>
+                    <td>${data.rentals.filter(r => r.clientId === client.id).length}</td>
+                    <td>
+                        <button class="secondary" style="padding: 5px 10px; font-size: 12px;" onclick="editClient(${client.id})">Editar</button>
+                        <button class="danger" style="padding: 5px 10px; font-size: 12px;" onclick="deleteClient(${client.id})">Deletar</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteClient(clientId) {
+            if(confirm('Tem certeza que deseja deletar este cliente?')) {
+                data.clients = data.clients.filter(c => c.id !== clientId);
+                saveData();
+                showAlert('Cliente deletado!', 'success');
+                renderClients();
+                updateClientSelects();
+            }
+        }
+
+        function updateClientSelects() {
+            const select = document.getElementById('rentalClient');
+            select.innerHTML = '<option value="">Selecione um cliente</option>' + 
+                data.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+
+        // CAR MANAGEMENT
+        function createCar(e) {
+            e.preventDefault();
+            const car = {
+                id: Date.now(),
+                model: document.getElementById('carModel').value,
+                plate: document.getElementById('carPlate').value,
+                color: document.getElementById('carColor').value,
+                year: document.getElementById('carYear').value,
+                mileage: document.getElementById('carMileage').value,
+                status: document.getElementById('carStatus').value,
+                documents: document.getElementById('carDocuments').value,
+                createdAt: new Date().toISOString()
+            };
+
+            data.cars.push(car);
+            saveData();
+            showAlert('Carro adicionado com sucesso!', 'success');
+            document.getElementById('carForm').reset();
+            updateCarSelects();
+            renderCars();
+        }
+
+        function renderCars() {
+            const list = document.getElementById('carsList');
+            if(data.cars.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--color-text-light);">Nenhum carro cadastrado</p>';
+                return;
+            }
+
+            list.innerHTML = data.cars.map(car => {
+                const activeRental = data.rentals.find(r => r.carId === car.id && r.status === 'active');
+                return `
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">${car.model}</div>
+                                <p style="color: var(--color-text-light); font-size: 12px; margin-top: 5px;">Placa: ${car.plate}</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="status-badge ${car.status === 'available' ? 'active' : 'rented'}">${car.status === 'available' ? '✅ Disponível' : '🔴 Em Uso'}</span>
+                                ${activeRental ? `<p style="font-size: 12px; color: var(--color-text-light); margin-top: 5px;">Alugado até ${formatDate(activeRental.endDate)}</p>` : ''}
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; color: var(--color-text-light);">
+                            <div><strong>Cor:</strong> ${car.color || '-'}</div>
+                            <div><strong>Ano:</strong> ${car.year || '-'}</div>
+                            <div><strong>Km:</strong> ${car.mileage || 0}</div>
+                            <div><strong>RenavaM:</strong> ${car.documents || '-'}</div>
+                        </div>
+                        <div class="card-actions" style="margin-top: 15px;">
+                            <button class="secondary" onclick="editCar(${car.id})">Editar</button>
+                            <button class="danger" onclick="deleteCar(${car.id})">Deletar</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function deleteCar(carId) {
+            if(data.rentals.some(r => r.carId === carId && r.status === 'active')) {
+                showAlert('Não é possível deletar um carro com aluguel ativo!', 'error');
+                return;
+            }
+            if(confirm('Tem certeza que deseja deletar este carro?')) {
+                data.cars = data.cars.filter(c => c.id !== carId);
+                saveData();
+                showAlert('Carro deletado!', 'success');
+                renderCars();
+                updateCarSelects();
+            }
+        }
+
+        function updateCarSelects() {
+            const select = document.getElementById('rentalCar');
+            const calendarSelect = document.getElementById('calendarCar');
+            const options = data.cars.map(c => `<option value="${c.id}">${c.model} (${c.plate})</option>`).join('');
+            select.innerHTML = '<option value="">Selecione um carro</option>' + options;
+            calendarSelect.innerHTML = '<option value="">Todos os carros</option>' + options;
+        }
+
+        // RENTAL MANAGEMENT
+        function toggleRentalType() {
+            const type = document.getElementById('rentalType').value;
+            const valueLabel = document.querySelector('label[for="rentalValue"]');
+            if(type === 'daily') {
+                valueLabel.textContent = 'Valor da Diária (R$) *';
+            } else {
+                valueLabel.textContent = 'Valor Total do Contrato (R$) *';
+            }
+        }
+
+        function handleStartPhotos(event) {
+            const files = event.target.files;
+            const gallery = document.getElementById('startPhotosGallery');
+            gallery.innerHTML = '';
+
+            Array.from(files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const div = document.createElement('div');
+                    div.className = 'image-item';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="Foto ${index + 1}">
+                        <button type="button" onclick="this.parentElement.remove()">×</button>
+                    `;
+                    gallery.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function handleReturnPhotos(event) {
+            const files = event.target.files;
+            const gallery = document.getElementById('returnPhotosGallery');
+            gallery.innerHTML = '';
+
+            Array.from(files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const div = document.createElement('div');
+                    div.className = 'image-item';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="Foto ${index + 1}">
+                        <button type="button" onclick="this.parentElement.remove()">×</button>
+                    `;
+                    gallery.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function createRental(e) {
+            e.preventDefault();
+            
+            const clientId = parseInt(document.getElementById('rentalClient').value);
+            const carId = parseInt(document.getElementById('rentalCar').value);
+            const startDate = document.getElementById('rentalStart').value;
+            const endDate = document.getElementById('rentalEnd').value;
+            const type = document.getElementById('rentalType').value;
+            const value = parseFloat(document.getElementById('rentalValue').value);
+            const notes = document.getElementById('rentalNotes').value;
+
+            if(!clientId || !carId || !startDate || !endDate || !type || !value) {
+                showAlert('Preencha todos os campos obrigatórios!', 'error');
+                return;
+            }
+
+            // Check availability
+            const hasConflict = data.rentals.some(r => 
+                r.carId === carId && 
+                r.status === 'active' &&
+                !(new Date(endDate) < new Date(r.startDate) || new Date(startDate) > new Date(r.endDate))
+            );
+
+            if(hasConflict) {
+                showAlert('Este carro já tem aluguel neste período!', 'error');
+                return;
+            }
+
+            const startPhotos = document.getElementById('startPhotosGallery').querySelectorAll('img');
+            const photos = Array.from(startPhotos).map(img => img.src);
+
+            const rental = {
+                id: Date.now(),
+                clientId,
+                carId,
+                startDate,
+                endDate,
+                type,
+                value,
+                notes,
+                startPhotos: photos,
+                status: 'active',
+                createdAt: new Date().toISOString()
+            };
+
+            data.rentals.push(rental);
+            saveData();
+            showAlert('Aluguel criado com sucesso!', 'success');
+            document.getElementById('rentalForm').reset();
+            document.getElementById('startPhotosGallery').innerHTML = '';
+            updateDashboard();
+            renderCalendar();
+        }
+
+        function renderRentals() {
+            const list = document.getElementById('activeRentalsList');
+            const activeRentals = data.rentals.filter(r => r.status === 'active');
+
+            if(activeRentals.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--color-text-light);">Nenhum aluguel ativo</p>';
+                return;
+            }
+
+            list.innerHTML = activeRentals.map(rental => {
+                const client = data.clients.find(c => c.id === rental.clientId);
+                const car = data.cars.find(c => c.id === rental.carId);
+                const days = Math.ceil((new Date(rental.endDate) - new Date(rental.startDate)) / (1000 * 60 * 60 * 24));
+                const totalValue = rental.type === 'daily' ? rental.value * days : rental.value;
+
+                return `
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">${client?.name || 'Cliente desconhecido'} × ${car?.model || 'Carro desconhecido'}</div>
+                                <p style="color: var(--color-text-light); font-size: 12px; margin-top: 5px;">${formatDate(rental.startDate)} até ${formatDate(rental.endDate)} (${days} dias)</p>
+                            </div>
+                            <span class="status-badge active">✅ Ativo</span>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;">
+                            <div>
+                                <p style="color: var(--color-text-light); font-size: 12px; margin-bottom: 5px;">FOTOS DE SAÍDA</p>
+                                <div class="image-gallery" style="grid-template-columns: repeat(3, 1fr);">
+                                    ${rental.startPhotos.map((photo, idx) => `<img src="${photo}" style="width: 100%; border-radius: 5px;" alt="Foto ${idx + 1}">`).join('')}
+                                </div>
+                            </div>
+                            <div>
+                                <p style="color: var(--color-text-light); font-size: 12px; margin-bottom: 5px;">VALOR</p>
+                                <p style="font-size: 24px; font-weight: bold; color: var(--color-primary);">R$ ${totalValue.toFixed(2)}</p>
+                                <p style="font-size: 12px; color: var(--color-text-light);">${rental.type === 'daily' ? `R$ ${rental.value.toFixed(2)}/dia` : 'Valor total'}</p>
+                            </div>
+                        </div>
+
+                        ${rental.notes ? `<p style="color: var(--color-text-light); font-size: 12px; padding: 10px; background: var(--color-secondary); border-radius: 5px;"><strong>Notas:</strong> ${rental.notes}</p>` : ''}
+
+                        <div class="card-actions">
+                            <button class="success" onclick="openReturnModal(${rental.id})">✅ Registrar Devolução</button>
+                            <button class="danger" onclick="cancelRental(${rental.id})">❌ Cancelar Aluguel</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openReturnModal(rentalId) {
+            currentRentalId = rentalId;
+            document.getElementById('returnModal').classList.add('active');
+            document.getElementById('returnPhotosGallery').innerHTML = '';
+            document.getElementById('returnForm').reset();
+        }
+
+        function closeReturnModal() {
+            document.getElementById('returnModal').classList.remove('active');
+            currentRentalId = null;
+        }
+
+        function completeRental(e) {
+            e.preventDefault();
+            
+            const rental = data.rentals.find(r => r.id === currentRentalId);
+            if(!rental) return;
+
+            const returnPhotos = document.getElementById('returnPhotosGallery').querySelectorAll('img');
+            const photos = Array.from(returnPhotos).map(img => img.src);
+            const returnNotes = document.getElementById('returnNotes').value;
+            const finalMileage = document.getElementById('finalMileage').value;
+
+            rental.status = 'completed';
+            rental.returnPhotos = photos;
+            rental.returnNotes = returnNotes;
+            rental.finalMileage = finalMileage;
+            rental.completedAt = new Date().toISOString();
+
+            saveData();
+            showAlert('Devolução registrada com sucesso!', 'success');
+            closeReturnModal();
+            updateDashboard();
+            renderRentals();
+            renderCalendar();
+        }
+
+        function cancelRental(rentalId) {
+            if(confirm('Tem certeza que deseja cancelar este aluguel?')) {
+                const rental = data.rentals.find(r => r.id === rentalId);
+                if(rental) {
+                    rental.status = 'cancelled';
+                    saveData();
+                    showAlert('Aluguel cancelado!', 'success');
+                    updateDashboard();
+                    renderRentals();
+                    renderCalendar();
+                }
+            }
+        }
+
+        // CALENDAR
+        function renderCalendar() {
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const monthName = currentMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+            document.getElementById('currentMonth').textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+
+            // Add days from previous month
+            for(let i = 0; i < firstDay.getDay(); i++) {
+                const day = document.createElement('div');
+                day.className = 'day other-month';
+                calendarDays.appendChild(day);
+            }
+
+            // Add days of current month
+            for(let date = 1; date <= lastDay.getDate(); date++) {
+                const day = document.createElement('div');
+                const currentDate = new Date(year, month, date);
+                const dateStr = currentDate.toISOString().split('T')[0];
+                
+                day.className = 'day';
+                
+                const today = new Date().toISOString().split('T')[0];
+                if(dateStr === today) day.classList.add('today');
+
+                const selectedCarId = document.getElementById('calendarCar').value;
+                const rentalsOnDay = data.rentals.filter(r => 
+                    r.status === 'active' &&
+                    (selectedCarId === '' || r.carId === parseInt(selectedCarId)) &&
+                    new Date(r.startDate) <= currentDate && 
+                    currentDate <= new Date(r.endDate)
+                );
+
+                if(rentalsOnDay.length > 0) {
+                    day.classList.add('reserved');
+                    const car = data.cars.find(c => c.id === rentalsOnDay[0].carId);
+                    const client = data.clients.find(c => c.id === rentalsOnDay[0].clientId);
+                    day.innerHTML = `<div class="day-number">${date}</div><div class="day-rental">${client?.name.split(' ')[0] || 'Alugado'}</div>`;
+                } else {
+                    day.innerHTML = `<div class="day-number">${date}</div>`;
+                }
+
+                calendarDays.appendChild(day);
+            }
+        }
+
+        function previousMonth() {
+            currentMonth.setMonth(currentMonth.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentMonth.setMonth(currentMonth.getMonth() + 1);
+            renderCalendar();
+        }
+
+        // DASHBOARD
+        function updateDashboard() {
+            const activeRentals = data.rentals.filter(r => r.status === 'active');
+            const totalRevenue = data.rentals.filter(r => r.status === 'completed').reduce((sum, r) => {
+                const days = Math.ceil((new Date(r.endDate) - new Date(r.startDate)) / (1000 * 60 * 60 * 24));
+                return sum + (r.type === 'daily' ? r.value * days : r.value);
+            }, 0);
+
+            document.getElementById('totalCars').textContent = data.cars.length;
+            document.getElementById('totalClients').textContent = data.clients.length;
+            document.getElementById('activeRentals').textContent = activeRentals.length;
+            document.getElementById('totalRevenue').textContent = 'R$ ' + totalRevenue.toFixed(2);
+
+            // Upcoming rentals
+            const upcoming = data.rentals
+                .filter(r => r.status === 'active')
+                .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+                .slice(0, 5);
+
+            const tbody = document.getElementById('upcomingRentalsBody');
+            if(upcoming.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-text-light);">Nenhum aluguel próximo</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = upcoming.map(rental => {
+                const client = data.clients.find(c => c.id === rental.clientId);
+                const car = data.cars.find(c => c.id === rental.carId);
+                const days = Math.ceil((new Date(rental.endDate) - new Date(rental.startDate)) / (1000 * 60 * 60 * 24));
+                const totalValue = rental.type === 'daily' ? rental.value * days : rental.value;
+
+                return `
+                    <tr>
+                        <td>${client?.name || 'Desconhecido'}</td>
+                        <td>${car?.model || 'Desconhecido'}</td>
+                        <td>${formatDate(rental.startDate)}</td>
+                        <td>${formatDate(rental.endDate)}</td>
+                        <td>R$ ${totalValue.toFixed(2)}</td>
+                        <td>
+                            <button class="secondary" style="padding: 5px 10px; font-size: 12px;" onclick="openReturnModal(${rental.id})">Devolver</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // UTILITIES
+        function formatDate(dateStr) {
+            return new Date(dateStr).toLocaleDateString('pt-BR');
+        }
+
+        function showAlert(message, type = 'success') {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert ${type} active`;
+            setTimeout(() => alert.classList.remove('active'), 4000);
+        }
+
+        // DATA PERSISTENCE
+        function saveData() {
+            localStorage.setItem('rentalAppData', JSON.stringify(data));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('rentalAppData');
+            if(saved) {
+                data = JSON.parse(saved);
+                updateClientSelects();
+                updateCarSelects();
+            }
+        }
+
+        function exportData() {
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup-alugueis-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            showAlert('Backup realizado com sucesso!', 'success');
+        }
+
+        function importData() {
+            document.getElementById('importFile').click();
+        }
+
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if(imported.cars && imported.clients && imported.rentals) {
+                        data = imported;
+                        saveData();
+                        updateClientSelects();
+                        updateCarSelects();
+                        updateDashboard();
+                        showAlert('Backup restaurado com sucesso!', 'success');
+                    } else {
+                        showAlert('Arquivo de backup inválido!', 'error');
+                    }
+                } catch(err) {
+                    showAlert('Erro ao restaurar backup!', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if(confirm('Tem certeza? Esta ação é irreversível!')) {
+                data = { cars: [], clients: [], rentals: [], completedRentals: [] };
+                saveData();
+                updateClientSelects();
+                updateCarSelects();
+                updateDashboard();
+                showAlert('Todos os dados foram removidos!', 'success');
+                location.reload();
+            }
+        }
+
+        function editClient(clientId) {
+            alert('Funcionalidade de edição virá em breve!');
+        }
+
+        function editCar(carId) {
+            alert('Funcionalidade de edição virá em breve!');
+        }
+    </script>
+</body>
+</html>
